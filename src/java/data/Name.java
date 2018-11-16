@@ -1,5 +1,7 @@
+package data;
+
 /**
- * Name class to store the first and last name of a person.
+ * data.Name class to store the first and last name of a person.
  */
 public class Name {
 
