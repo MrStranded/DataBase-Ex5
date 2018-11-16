@@ -3,6 +3,7 @@ import similarity_measures.HammingDistance;
 import similarity_measures.ISimilarityMeasure;
 import similarity_measures.NameCorrecter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Main {
@@ -17,19 +18,18 @@ public class Main {
 		List<String> maleFirstNames = NameLoader.loadStrings("res/cleaningDataset/maleFirstnames.txt");
 		List<String> lastNames = NameLoader.loadStrings("res/cleaningDataset/lastnames.txt");
 
-		// initializing the correction handler
+		// initializing the correction handler and the similarity measures
 		System.out.println("Initializing correcter...");
 		NameCorrecter nameCorrecter = new NameCorrecter(femaleFirstNames, maleFirstNames, lastNames);
 
+		List<ISimilarityMeasure> similarityMeasures = new ArrayList<>();
+		similarityMeasures.add(new HammingDistance());
+
 		// correcting the wrong name list
-		System.out.println("Applying hamming similarity measure...");
-		ISimilarityMeasure hammingDistance = new HammingDistance();
+		for (ISimilarityMeasure similarityMeasure : similarityMeasures) {
+			System.out.println("--------- Applying " + similarityMeasure.getClass() + " similarity measure...");
 
-		List<Name> correctedNames = nameCorrecter.correctNames(wrongNames, hammingDistance);
-
-		System.out.println("Corrected Names: -----------------------------");
-		for (Name name : correctedNames) {
-			System.out.println(name);
+			List<Name> correctedNames = nameCorrecter.correctNames(wrongNames, similarityMeasure);
 		}
 	}
 

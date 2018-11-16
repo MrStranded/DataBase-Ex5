@@ -83,6 +83,32 @@ public class NameCorrecter {
 	 */
 	private List<Name> removeDuplicates(List<Name> inputList) {
 		System.out.println("Removing duplicates...");
+
+		List<Name> outputList = new ArrayList<>(1000);
+		int length = inputList.size();
+		int duplicates = 0;
+
+		for (int i=0; i<length; i++) {
+			Name outerName = inputList.get(i);
+			boolean add = true;
+
+			for (int j=0; j<i; j++) {
+				Name innerName = inputList.get(j);
+
+				if (innerName.equals(outerName)) {
+					duplicates++;
+					add = false;
+					break;
+				}
+			}
+
+			if (add) {
+				outputList.add(outerName);
+			}
+		}
+
+		System.out.println("Removed " + duplicates + " duplicates. " + outputList.size() + " remain.");
+
 		return inputList;
 	}
 
