@@ -12,6 +12,9 @@ public class Main {
 
 	public static void main(String[] args) {
 
+		// interpreting the given arguments
+		List<ISimilarityMeasure> similarityMeasures = interpretArguments(args);
+
 		// loading the data
 		System.out.println("Loading data...");
 		List<Name> wrongNames = NameLoader.loadNames("res/cleaningDataset/corruptedNames.txt");
@@ -25,10 +28,6 @@ public class Main {
 		// initializing the correction handler and the similarity measures
 		System.out.println("Initializing correcter...");
 		NameCorrecter nameCorrecter = new NameCorrecter(femaleFirstNames, maleFirstNames, lastNames);
-
-		List<ISimilarityMeasure> similarityMeasures = new ArrayList<>();
-		similarityMeasures.add(new HammingDistance());
-		similarityMeasures.add(new SoundexDistance());
 
 		// correcting the wrong name list
 		for (ISimilarityMeasure similarityMeasure : similarityMeasures) {
@@ -52,6 +51,51 @@ public class Main {
 			System.out.println("--- Calculating the TPR.");
 			System.out.println("True Positive Rate = " + EfficiencyCalculator.calculateTruePositives(correctedNames, generatedNames));
 		}
+	}
+
+	private static List<ISimilarityMeasure> interpretArguments(String[] args) {
+		List<ISimilarityMeasure> similarityMeasures = new ArrayList<>(1);
+
+		if (args == null || args.length == 0) { // no arguments given -> apply all
+			similarityMeasures.add(new HammingDistance());
+			similarityMeasures.add(new SoundexDistance());
+
+		} else {
+			for (String argument : args) {
+				if ("help".equals(argument) || "h".equals(argument) || "-h".equals(argument)) {
+					System.out.println("Use this program as follows:");
+					System.out.println("- type 'help' to see the help screen");
+					System.out.println("- type no argument to calculate all similarity measures");
+					System.out.println("- type the names of the similarity measures you want to calculate");
+					System.out.println("  There are the following similarity measures you can use:");
+					System.out.println("  -> 'hamming'");
+					System.out.println("  -> 'soundex'");
+					System.out.println("  -> 'levensthein'");
+					System.out.println("  -> 'jaccard'");
+					System.out.println("  -> 'optimal'");
+
+				} else if ("hamming".equals(argument)) {
+					similarityMeasures.add(new HammingDistance());
+
+				} else if ("soundex".equals(argument)) {
+					similarityMeasures.add(new SoundexDistance());
+
+				} else if ("levensthein".equals(argument)) {
+
+
+				} else if ("jaccard".equals(argument)) {
+
+
+				} else if ("optimal".equals(argument)) {
+
+
+				} else {
+					System.out.println("The argument '" + argument + "' is invalid!");
+				}
+			}
+		}
+
+		return similarityMeasures;
 	}
 
 }
