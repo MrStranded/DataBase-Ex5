@@ -1,10 +1,13 @@
 package processing;
 
+import com.sun.org.apache.xpath.internal.operations.Or;
 import data.Name;
 import data.NameDistancePair;
+import data.OriginalProcessedPair;
 import similarity_measures.ISimilarityMeasure;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class NameCorrecter {
@@ -31,6 +34,11 @@ public class NameCorrecter {
 		int progress = 0;
 		int i = 0;
 
+		System.out.println("Preprocessing lists...");
+		List<OriginalProcessedPair> femaleFirstNamesProcessed = processList(femaleFirstNames, similarityMeasure);
+		List<OriginalProcessedPair> maleFirstNamesProcessed = processList(maleFirstNames, similarityMeasure);
+		List<OriginalProcessedPair> lastNamesProcessed = processList(lastNames, similarityMeasure);
+
 		System.out.println("Correcting names...");
 
 		for (Name name : wrongNames) {
@@ -42,8 +50,8 @@ public class NameCorrecter {
 			String lastNameProcessed = similarityMeasure.preProcess(name.getLastName());
 
 			// we calculate the best fit for the first name for both genders
-			NameDistancePair femaleFirstName = closestString(firstNameProcessed, femaleFirstNames, similarityMeasure);
-			NameDistancePair maleFirstName = closestString(firstNameProcessed, maleFirstNames, similarityMeasure);
+			NameDistancePair femaleFirstName = closestString(firstNameProcessed, femaleFirstNamesProcessed, similarityMeasure);
+			NameDistancePair maleFirstName = closestString(firstNameProcessed, maleFirstNamesProcessed, similarityMeasure);
 
 			// now we find out which of the names (female, male) fits better and put it into our newName
 			if (femaleFirstName.getDistance() < maleFirstName.getDistance()) {
@@ -53,7 +61,7 @@ public class NameCorrecter {
 			}
 
 			// we also find the best fit for the lastname and put it into the newName
-			newName.setLastName(closestString(lastNameProcessed, lastNames, similarityMeasure).getName());
+			newName.setLastName(closestString(lastNameProcessed, lastNamesProcessed, similarityMeasure).getName());
 
 			// finally, we add the newName to the correctedNames list (as you can obviously see in the line of code below)
 			correctedNames.add(newName);
@@ -72,6 +80,14 @@ public class NameCorrecter {
 		return removeDuplicates(correctedNames);
 	}
 
+	private List<OriginalProcessedPair> processList(List<String> list, ISimilarityMeasure similarityMeasure) {
+		List<OriginalProcessedPair> outputList = new ArrayList<>(20000);
+		for (String string : list) {
+			outputList.add(new OriginalProcessedPair(string, similarityMeasure.preProcess(string)));
+		}
+		return outputList;
+	}
+
 	/**
 	 * Finds the closest string from the given list for the given string, based on the given similarity measure.
 	 * @param wrongString to correct
@@ -79,16 +95,16 @@ public class NameCorrecter {
 	 * @param similarityMeasure to apply
 	 * @return best fitting string from list
 	 */
-	private NameDistancePair closestString(String wrongString, List<String> correctList, ISimilarityMeasure similarityMeasure) {
+	private NameDistancePair closestString(String wrongString, List<OriginalProcessedPair> correctList, ISimilarityMeasure similarityMeasure) {
 		int leastDistance = -1;
 		String bestFit = wrongString;
 
-		for (String correctString : correctList) {
-			int distance = similarityMeasure.distance(wrongString, correctString);
+		for (OriginalProcessedPair correct: correctList) {
+			int distance = similarityMeasure.distance(wrongString, correct.getProcessed());
 
 			if (leastDistance == -1 || distance < leastDistance) {
 				leastDistance = distance;
-				bestFit = correctString;
+				bestFit = correct.getOriginal();
 			}
 		}
 
@@ -104,26 +120,17 @@ public class NameCorrecter {
 		System.out.println("Removing duplicates...");
 
 		List<Name> outputList = new ArrayList<>(1000);
-		int length = inputList.size();
+		HashMap<String, Name> hashMap = new HashMap<>();
 		int duplicates = 0;
 
-		for (int i=0; i<length; i++) {
-			Name outerName = inputList.get(i);
-			boolean add = true;
-
-			for (int j=0; j<i; j++) {
-				Name innerName = inputList.get(j);
-
-				if (innerName.equals(outerName)) {
-					duplicates++;
-					add = false;
-					break;
-				}
+		for (Name name : inputList) {
+			if (!hashMap.containsKey(name.toString())) {
+				outputList.add(name);
+			} else {
+				duplicates++;
 			}
 
-			if (add) {
-				outputList.add(outerName);
-			}
+			hashMap.put(name.toString(), name);
 		}
 
 		System.out.println("Removed " + duplicates + " duplicates. " + outputList.size() + " remain.");

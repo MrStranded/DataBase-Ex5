@@ -28,7 +28,7 @@ public class Main {
 
 		List<ISimilarityMeasure> similarityMeasures = new ArrayList<>();
 		similarityMeasures.add(new HammingDistance());
-		//similarityMeasures.add(new SoundexDistance());
+		similarityMeasures.add(new SoundexDistance());
 
 		// correcting the wrong name list
 		for (ISimilarityMeasure similarityMeasure : similarityMeasures) {
@@ -49,7 +49,7 @@ public class Main {
 				}
 			}
 
-			System.out.println("Calculating the TPR.");
+			System.out.println("--- Calculating the TPR.");
 			System.out.println("True Positive Rate = " + EfficiencyCalculator.calculateTruePositives(correctedNames, generatedNames));
 		}
 	}
