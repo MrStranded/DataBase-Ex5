@@ -3,6 +3,7 @@ import processing.EfficiencyCalculator;
 import similarity_measures.HammingDistance;
 import similarity_measures.ISimilarityMeasure;
 import processing.NameCorrecter;
+import similarity_measures.LevenshteinDistance;
 import similarity_measures.SoundexDistance;
 
 import java.util.ArrayList;
@@ -59,6 +60,7 @@ public class Main {
 		if (args == null || args.length == 0) { // no arguments given -> apply all
 			similarityMeasures.add(new HammingDistance());
 			similarityMeasures.add(new SoundexDistance());
+			similarityMeasures.add(new LevenshteinDistance());
 
 		} else {
 			for (String argument : args) {
@@ -81,6 +83,7 @@ public class Main {
 					similarityMeasures.add(new SoundexDistance());
 
 				} else if ("levensthein".equals(argument)) {
+					similarityMeasures.add(new LevenshteinDistance());
 
 
 				} else if ("jaccard".equals(argument)) {
