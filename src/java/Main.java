@@ -1,10 +1,7 @@
 import data.Name;
 import processing.EfficiencyCalculator;
-import similarity_measures.HammingDistance;
-import similarity_measures.ISimilarityMeasure;
+import similarity_measures.*;
 import processing.NameCorrecter;
-import similarity_measures.LevenshteinDistance;
-import similarity_measures.SoundexDistance;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,9 +55,11 @@ public class Main {
 		List<ISimilarityMeasure> similarityMeasures = new ArrayList<>(1);
 
 		if (args == null || args.length == 0) { // no arguments given -> apply all
-			similarityMeasures.add(new HammingDistance());
+			/*similarityMeasures.add(new HammingDistance());
 			similarityMeasures.add(new SoundexDistance());
 			similarityMeasures.add(new LevenshteinDistance());
+			*/
+			similarityMeasures.add(new JaccardDistance());
 
 		} else {
 			for (String argument : args) {
