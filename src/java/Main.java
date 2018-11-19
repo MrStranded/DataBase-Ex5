@@ -72,7 +72,7 @@ public class Main {
 					System.out.println("  There are the following similarity measures you can use:");
 					System.out.println("  -> 'hamming'");
 					System.out.println("  -> 'soundex'");
-					System.out.println("  -> 'levensthein'");
+					System.out.println("  -> 'levenshtein'");
 					System.out.println("  -> 'jaccard'");
 					System.out.println("  -> 'optimal'");
 
@@ -82,7 +82,7 @@ public class Main {
 				} else if ("soundex".equals(argument)) {
 					similarityMeasures.add(new SoundexDistance());
 
-				} else if ("levensthein".equals(argument)) {
+				} else if ("levenshtein".equals(argument)) {
 					similarityMeasures.add(new LevenshteinDistance());
 
 
