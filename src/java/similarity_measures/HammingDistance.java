@@ -17,4 +17,9 @@ public class HammingDistance implements ISimilarityMeasure{
 
 		return distance;
 	}
+
+	@Override
+	public String preProcess(String name) {
+		return name;
+	}
 }

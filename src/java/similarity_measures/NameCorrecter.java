@@ -1,6 +1,7 @@
 package similarity_measures;
 
 import data.Name;
+import data.NameDistancePair;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +25,10 @@ public class NameCorrecter {
 	 */
 	public List<Name> correctNames(List<Name> wrongNames, ISimilarityMeasure similarityMeasure) {
 		List<Name> correctedNames = new ArrayList<>(1000);
+		int length = wrongNames.size();
+		int partLength = length / 100;
+		int progress = 0;
+		int i = 0;
 
 		System.out.println("Correcting names...");
 
@@ -31,23 +36,36 @@ public class NameCorrecter {
 			// we create a new name that will be added to the correctedNames list
 			Name newName = new Name(name.getFirstName(), name.getLastName());
 
+			// preprocessing the string (this is useful for the soundex algorithm)
+			String firstNameProcessed = similarityMeasure.preProcess(name.getFirstName());
+			String lastNameProcessed = similarityMeasure.preProcess(name.getLastName());
+
 			// we calculate the best fit for the first name for both genders
-			String femaleFirstName = closestString(name.getFirstName(), femaleFirstNames, similarityMeasure);
-			String maleFirstName = closestString(name.getFirstName(), maleFirstNames, similarityMeasure);
+			NameDistancePair femaleFirstName = closestString(firstNameProcessed, femaleFirstNames, similarityMeasure);
+			NameDistancePair maleFirstName = closestString(firstNameProcessed, maleFirstNames, similarityMeasure);
 
 			// now we find out which of the names (female, male) fits better and put it into our newName
-			if (similarityMeasure.distance(name.getFirstName(), femaleFirstName) < similarityMeasure.distance(name.getFirstName(), maleFirstName)) {
-				newName.setFirstName(femaleFirstName);
+			if (femaleFirstName.getDistance() < maleFirstName.getDistance()) {
+				newName.setFirstName(femaleFirstName.getName());
 			} else {
-				newName.setFirstName(maleFirstName);
+				newName.setFirstName(maleFirstName.getName());
 			}
 
 			// we also find the best fit for the lastname and put it into the newName
-			newName.setLastName(closestString(name.getLastName(), lastNames, similarityMeasure));
+			newName.setLastName(closestString(lastNameProcessed, lastNames, similarityMeasure).getName());
 
 			// finally, we add the newName to the correctedNames list (as you can obviously see in the line of code below)
 			correctedNames.add(newName);
+
+			// show the poor bois how far we've gotten
+			if (i++ > progress * partLength) {
+				updateProgressBar(progress);
+				progress++;
+			}
 		}
+
+		// going to next line after progress bar
+		System.out.println("");
 
 		// before returning the correctedNames list, we remove duplicates
 		return removeDuplicates(correctedNames);
@@ -60,7 +78,7 @@ public class NameCorrecter {
 	 * @param similarityMeasure to apply
 	 * @return best fitting string from list
 	 */
-	private String closestString(String wrongString, List<String> correctList, ISimilarityMeasure similarityMeasure) {
+	private NameDistancePair closestString(String wrongString, List<String> correctList, ISimilarityMeasure similarityMeasure) {
 		int leastDistance = -1;
 		String bestFit = wrongString;
 
@@ -73,7 +91,7 @@ public class NameCorrecter {
 			}
 		}
 
-		return bestFit;
+		return new NameDistancePair(bestFit, leastDistance);
 	}
 
 	/**
@@ -110,6 +128,28 @@ public class NameCorrecter {
 		System.out.println("Removed " + duplicates + " duplicates. " + outputList.size() + " remain.");
 
 		return inputList;
+	}
+
+	/**
+	 * A small method to visualize the progress of the current similarity measure in percent.
+	 * @param progress
+	 */
+	private void updateProgressBar(int progress) {
+		StringBuilder stringBuilder = new StringBuilder();
+
+		stringBuilder.append('\r');
+
+		stringBuilder.append(progress).append(" % [");
+		for (int i=0; i<100; i++) {
+			if (i < progress) {
+				stringBuilder.append('#');
+			} else {
+				stringBuilder.append(' ');
+			}
+		}
+		stringBuilder.append(']');
+
+		System.out.print(stringBuilder);
 	}
 
 }

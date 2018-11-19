@@ -7,24 +7,31 @@ public class SoundexDistance implements ISimilarityMeasure {
 	/**
 	 * This implementation calculates the soundex representation of the two strings and counts how many letters differ.
 	 * This is a very simple (and stupid) implementation, because the distance can only reach from 0 to 4, which is extremely imprecise.
-	 * @param one first string to compare
+	 * @param oneProcessed first string to compare (already in soundex format)
 	 * @param two second string to compare
 	 * @return the soundex distance between the two strings
 	 */
 	@Override
-	public int distance(String one, String two) {
-		String oneProcessed = soundexify(one);
+	public int distance(String oneProcessed, String two) {
 		String twoProcessed = soundexify(two);
 
 		int distance = 0;
 
 		for (int i=0; i<4; i++) {
+			if (oneProcessed.length() < 4) {
+				System.out.println("too short: " + oneProcessed);
+			}
 			if (oneProcessed.charAt(i) != twoProcessed.charAt(i)) {
 				distance++;
 			}
 		}
 
 		return distance;
+	}
+
+	@Override
+	public String preProcess(String name) {
+		return soundexify(name);
 	}
 
 	/**

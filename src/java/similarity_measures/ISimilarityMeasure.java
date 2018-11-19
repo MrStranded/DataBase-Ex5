@@ -6,4 +6,6 @@ public interface ISimilarityMeasure {
 
 	int distance(String one, String two);
 
+	String preProcess(String name);
+
 }

@@ -31,7 +31,10 @@ public class Main {
 		for (ISimilarityMeasure similarityMeasure : similarityMeasures) {
 			System.out.println("--------- Applying " + similarityMeasure.getClass() + " similarity measure...");
 
+			long startTime = System.currentTimeMillis();
 			List<Name> correctedNames = nameCorrecter.correctNames(wrongNames, similarityMeasure);
+
+			System.out.println("It took " + (System.currentTimeMillis() - startTime) + " milliseconds.");
 
 			System.out.println("--- Sample names:");
 			int i=0;
