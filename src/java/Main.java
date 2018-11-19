@@ -1,7 +1,8 @@
 import data.Name;
+import processing.EfficiencyCalculator;
 import similarity_measures.HammingDistance;
 import similarity_measures.ISimilarityMeasure;
-import similarity_measures.NameCorrecter;
+import processing.NameCorrecter;
 import similarity_measures.SoundexDistance;
 
 import java.util.ArrayList;
@@ -19,13 +20,15 @@ public class Main {
 		List<String> maleFirstNames = NameLoader.loadStrings("res/cleaningDataset/maleFirstnames.txt");
 		List<String> lastNames = NameLoader.loadStrings("res/cleaningDataset/lastnames.txt");
 
+		List<Name> generatedNames = NameLoader.loadNames("res/cleaningDataset/generatedNames.txt");
+
 		// initializing the correction handler and the similarity measures
 		System.out.println("Initializing correcter...");
 		NameCorrecter nameCorrecter = new NameCorrecter(femaleFirstNames, maleFirstNames, lastNames);
 
 		List<ISimilarityMeasure> similarityMeasures = new ArrayList<>();
 		similarityMeasures.add(new HammingDistance());
-		similarityMeasures.add(new SoundexDistance());
+		//similarityMeasures.add(new SoundexDistance());
 
 		// correcting the wrong name list
 		for (ISimilarityMeasure similarityMeasure : similarityMeasures) {
@@ -45,6 +48,9 @@ public class Main {
 					break;
 				}
 			}
+
+			System.out.println("Calculating the TPR.");
+			System.out.println("True Positive Rate = " + EfficiencyCalculator.calculateTruePositives(correctedNames, generatedNames));
 		}
 	}
 

@@ -1,7 +1,8 @@
-package similarity_measures;
+package processing;
 
 import data.Name;
 import data.NameDistancePair;
+import similarity_measures.ISimilarityMeasure;
 
 import java.util.ArrayList;
 import java.util.List;
