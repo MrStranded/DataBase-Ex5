@@ -20,6 +20,7 @@ public class NameCorrecter {
 		this.lastNames = lastNames;
 	}
 
+	// _________________________________________________________________________________________________________________
 	/**
 	 * For each name in the list, we find the best fitting name based on the given similarity measure.
 	 * This corrected name list is also checked for duplicates.
@@ -80,6 +81,14 @@ public class NameCorrecter {
 		return removeDuplicates(correctedNames);
 	}
 
+	// _________________________________________________________________________________________________________________
+	/**
+	 * Calculates the processed version of each element in the list and constructs a new list,
+	 * which contains the original version, as well as the processed one.
+	 * @param list to process
+	 * @param similarityMeasure to apply
+	 * @return list with original string and processed string
+	 */
 	private List<OriginalProcessedPair> processList(List<String> list, ISimilarityMeasure similarityMeasure) {
 		List<OriginalProcessedPair> outputList = new ArrayList<>(20000);
 		for (String string : list) {
@@ -88,6 +97,7 @@ public class NameCorrecter {
 		return outputList;
 	}
 
+	// _________________________________________________________________________________________________________________
 	/**
 	 * Finds the closest string from the given list for the given string, based on the given similarity measure.
 	 * @param wrongString to correct
@@ -111,6 +121,7 @@ public class NameCorrecter {
 		return new NameDistancePair(bestFit, leastDistance);
 	}
 
+	// _________________________________________________________________________________________________________________
 	/**
 	 * Removes duplicates and returns result.
 	 * @param inputList to search for duplicates
@@ -138,6 +149,7 @@ public class NameCorrecter {
 		return inputList;
 	}
 
+	// _________________________________________________________________________________________________________________
 	/**
 	 * A small method to visualize the progress of the current similarity measure in percent.
 	 * @param progress
