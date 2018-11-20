@@ -16,17 +16,18 @@ public class JaccardDistance implements ISimilarityMeasure{
 		 *   value). We do this drastically increase performance (time needed to run).
 		 * - If a pair is not stored yet, its TriGrams will be calculated and the pair is then added to the map.
 		 */
-		List<String> oneList = new ArrayList<>();
-		List<String> twoList = new ArrayList<>();
+		List<String> oneList, twoList;
 		if (nameList.containsKey(one)) {
 			oneList = nameList.get(one);
 		} else {
+			oneList = new ArrayList<>();
 			generateTriGrams(one, oneList);
 			nameList.put(one, oneList);
 		}
 		if (nameList.containsKey(two)) {
 			twoList = nameList.get(two);
 		} else {
+			twoList = new ArrayList<>();
 			generateTriGrams(two, twoList);
 			nameList.put(two, twoList);
 		}
@@ -38,15 +39,15 @@ public class JaccardDistance implements ISimilarityMeasure{
 		 */
 		int common = 0;
 		if(oneList.size() > twoList.size()) {
-			for(int i=0; i<oneList.size(); i++){
-				if(twoList.contains(oneList.get(i))){
+			for(String triOne : oneList){
+				if(twoList.contains(triOne)){
 					common++;
 				}
 			}
 		}
 		else {
-			for(int i=0; i<twoList.size(); i++){
-				if(oneList.contains(twoList.get(i))){
+			for(String triTwo : twoList){
+				if(oneList.contains(triTwo)){
 					common++;
 				}
 			}

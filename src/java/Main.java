@@ -29,6 +29,7 @@ public class Main {
 
 		// correcting the wrong name list
 		for (ISimilarityMeasure similarityMeasure : similarityMeasures) {
+			System.out.println(""); // an empty line to improve readability
 			System.out.println("--------- Applying " + similarityMeasure.getClass() + " similarity measure...");
 
 			long startTime = System.currentTimeMillis();
@@ -55,10 +56,9 @@ public class Main {
 		List<ISimilarityMeasure> similarityMeasures = new ArrayList<>(1);
 
 		if (args == null || args.length == 0) { // no arguments given -> apply all
-			/*similarityMeasures.add(new HammingDistance());
+			similarityMeasures.add(new HammingDistance());
 			similarityMeasures.add(new SoundexDistance());
 			similarityMeasures.add(new LevenshteinDistance());
-			*/
 			similarityMeasures.add(new JaccardDistance());
 
 		} else {
@@ -84,9 +84,8 @@ public class Main {
 				} else if ("levenshtein".equals(argument)) {
 					similarityMeasures.add(new LevenshteinDistance());
 
-
 				} else if ("jaccard".equals(argument)) {
-
+					similarityMeasures.add(new JaccardDistance());
 
 				} else if ("optimal".equals(argument)) {
 
