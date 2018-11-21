@@ -9,8 +9,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * Abstract parent class for the two correctors NameCorrecter and OptimalCorrecter, which provides some basic functionality.
+ */
 public abstract class Correcter {
 
+	// _________________________________________________________________________________________________________________
+
+	/**
+	 * Abstract method which provides framework for correcting a list of names.
+	 * @param wrongNames to correct
+	 * @param similarityMeasure to apply
+	 * @return corrected name list
+	 */
 	public abstract List<Name> correctNames(List<Name> wrongNames, ISimilarityMeasure similarityMeasure);
 
 	// _________________________________________________________________________________________________________________
@@ -63,6 +74,22 @@ public abstract class Correcter {
 		System.out.println("Removed " + duplicates + " duplicates. " + outputList.size() + " remain.");
 
 		return inputList;
+	}
+
+	// _________________________________________________________________________________________________________________
+	/**
+	 * Calculates the processed version of each element in the list and constructs a new list,
+	 * which contains the original version, as well as the processed one.
+	 * @param list to process
+	 * @param similarityMeasure to apply
+	 * @return list with original string and processed string
+	 */
+	protected List<OriginalProcessedPair> processList(List<String> list, ISimilarityMeasure similarityMeasure) {
+		List<OriginalProcessedPair> outputList = new ArrayList<>(20000);
+		for (String string : list) {
+			outputList.add(new OriginalProcessedPair(string, similarityMeasure.preProcess(string)));
+		}
+		return outputList;
 	}
 
 	// _________________________________________________________________________________________________________________

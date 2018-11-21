@@ -81,20 +81,4 @@ public class NameCorrecter extends Correcter {
 		return removeDuplicates(correctedNames);
 	}
 
-	// _________________________________________________________________________________________________________________
-	/**
-	 * Calculates the processed version of each element in the list and constructs a new list,
-	 * which contains the original version, as well as the processed one.
-	 * @param list to process
-	 * @param similarityMeasure to apply
-	 * @return list with original string and processed string
-	 */
-	private List<OriginalProcessedPair> processList(List<String> list, ISimilarityMeasure similarityMeasure) {
-		List<OriginalProcessedPair> outputList = new ArrayList<>(20000);
-		for (String string : list) {
-			outputList.add(new OriginalProcessedPair(string, similarityMeasure.preProcess(string)));
-		}
-		return outputList;
-	}
-
 }

@@ -35,7 +35,7 @@ public class Main {
 
 			long startTime = System.currentTimeMillis();
 
-			List<Name> correctedNames = new ArrayList<>(0);
+			List<Name> correctedNames;
 
 			if (similarityMeasure.getClass() != OptimalDistance.class) { // for any normal similarity measure
 				correctedNames = nameCorrecter.correctNames(wrongNames, similarityMeasure);
@@ -75,7 +75,7 @@ public class Main {
 
 		} else {
 			for (String argument : args) {
-				if ("help".equals(argument) || "h".equals(argument) || "-h".equals(argument)) {
+				if ("help".equals(argument) || "h".equals(argument) || "-h".equals(argument) || "-help".equals(argument)) {
 					System.out.println("Use this program as follows:");
 					System.out.println("- type 'help' to see the help screen");
 					System.out.println("- type no argument to calculate all similarity measures");

@@ -3,14 +3,14 @@ package processing;
 import data.Name;
 import data.NameDistancePair;
 import data.OriginalProcessedPair;
-import similarity_measures.ISimilarityMeasure;
-import similarity_measures.JaccardDistance;
-import similarity_measures.LevenshteinDistance;
-import similarity_measures.SoundexDistance;
+import similarity_measures.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This correcter is used to combine multiple similarity measures to achieve a better True Positive Rate.
+ */
 public class OptimalCorrecter extends Correcter {
 
 	private List<String> femaleFirstNames, maleFirstNames, lastNames;
@@ -21,10 +21,38 @@ public class OptimalCorrecter extends Correcter {
 		this.maleFirstNames = maleFirstNames;
 		this.lastNames = lastNames;
 
-		similarityMeasure = new LevenshteinDistance();
-		decisionMeasure = new JaccardDistance();
+		// we distinguish two similarity measures:
+		// - one to retrieve a set of names with the same (best) score in the first measure (similarityMeasure)
+		// - the second to pick from this list the name with the best score in the second measure (decisionMeasure)
+		similarityMeasure = new LevenshteinDistance(); // first measure
+		decisionMeasure = new JaccardDistance(); // second measure
+
+		/*
+		TPR's of different combinations of similarity and decision measures. (similarity | decision)
+
+		hamming | soundex:      TPR = 0.287
+		hamming | levenshtein:  TPR = 0.420
+		hamming | jaccard:      TPR = 0.422
+		soundex | hamming:      TPR = 0.325
+		soundex | levenshtein:  TPR = 0.499
+		soundex | jaccard:      TPR = 0.500
+		levenshtein | hamming:  TPR = 0.594
+		levenshtein | soundex:  TPR = 0.617
+		levenshtein | jaccard:  TPR = 0.767 <- best
+		jaccard | hamming:      TPR = 0.586
+		jaccard | soundex:      TPR = 0.627
+		jaccard | levenshtein:  TPR = 0.728
+		 */
 	}
 
+	// _________________________________________________________________________________________________________________
+	/**
+	 * This method calculates the estimated correct names for a given list of wrong names.
+	 * The similartiy measure in the argument is not used, as we define our own in the constructor.
+	 * @param wrongNames to correct
+	 * @param notUsed
+	 * @return list with corrected names
+	 */
 	public List<Name> correctNames(List<Name> wrongNames, ISimilarityMeasure notUsed) {
 		List<Name> correctedNames = new ArrayList<>(1000);
 		int length = wrongNames.size();
@@ -34,9 +62,9 @@ public class OptimalCorrecter extends Correcter {
 		ISimilarityMeasure decisionMeasure = new SoundexDistance();
 
 		System.out.println("Preprocessing lists...");
-		List<OriginalProcessedPair> femaleFirstNamesProcessed = processList(femaleFirstNames);
-		List<OriginalProcessedPair> maleFirstNamesProcessed = processList(maleFirstNames);
-		List<OriginalProcessedPair> lastNamesProcessed = processList(lastNames);
+		List<OriginalProcessedPair> femaleFirstNamesProcessed = processList(femaleFirstNames, similarityMeasure);
+		List<OriginalProcessedPair> maleFirstNamesProcessed = processList(maleFirstNames, similarityMeasure);
+		List<OriginalProcessedPair> lastNamesProcessed = processList(lastNames, similarityMeasure);
 
 		System.out.println("Correcting names...");
 
@@ -62,6 +90,7 @@ public class OptimalCorrecter extends Correcter {
 			// we also find the best fit for the lastname and put it into the newName
 			List<String> bestLastNames = closestStrings(lastNameProcessed, lastNamesProcessed, similarityMeasure);
 
+			// we find the best fitting last name in regard to our decision measure
 			newName.setLastName(findBestDecisionFit(name.getLastName(), bestLastNames));
 
 			// finally, we add the newName to the correctedNames list (as you can obviously see in the line of code below)
@@ -80,11 +109,20 @@ public class OptimalCorrecter extends Correcter {
 		return correctedNames;
 	}
 
+	// _________________________________________________________________________________________________________________
+	/**
+	 * Goes through a list of names and returns the one with the least distance in regard to the decision measure.
+	 * @param searchTerm to calculate the distance from
+	 * @param names to search
+	 * @return best fit in regard to decision measure
+	 */
 	private String findBestDecisionFit(String searchTerm, List<String> names) {
 		int leastDistance = -1;
 		String bestName = "";
+		searchTerm = decisionMeasure.preProcess(searchTerm);
+
 		for (String name : names) {
-			int distance = decisionMeasure.distance(searchTerm, name);
+			int distance = decisionMeasure.distance(searchTerm, decisionMeasure.preProcess(name));
 			if (leastDistance == -1 || distance < leastDistance) {
 				leastDistance = distance;
 				bestName = name;
@@ -93,6 +131,14 @@ public class OptimalCorrecter extends Correcter {
 		return bestName;
 	}
 
+	// _________________________________________________________________________________________________________________
+	/**
+	 * Collects the list of names with the same and least distance from the wrongString from the correctList in regard to the similarity measure.
+	 * @param wrongString to calculate distance from
+	 * @param correctList to search in
+	 * @param similarityMeasure to apply
+	 * @return list of names with least distance
+	 */
 	private List<String> closestStrings(String wrongString, List<OriginalProcessedPair> correctList, ISimilarityMeasure similarityMeasure) {
 		int leastDistance = -1;
 		List<String> bestFits = new ArrayList<>(8);
@@ -100,28 +146,19 @@ public class OptimalCorrecter extends Correcter {
 		for (OriginalProcessedPair correct: correctList) {
 			int distance = similarityMeasure.distance(wrongString, correct.getProcessed());
 
-			if (leastDistance == -1) {
-				leastDistance = distance;
-			}
+			// there is no least distance yet -> regard current distance as least distance
+			if (leastDistance == -1) { leastDistance = distance; }
 
-			if (distance < leastDistance) {
+			if (distance < leastDistance) { // a better distance is found -> disregard list of names that were previously best
 				leastDistance = distance;
 				bestFits.clear();
 				bestFits.add(correct.getOriginal());
-			} else if (distance == leastDistance) {
+			} else if (distance == leastDistance) { // a name with the same distance is found -> add it to the list
 				bestFits.add(correct.getOriginal());
 			}
 		}
 
 		return bestFits;
-	}
-
-	private List<OriginalProcessedPair> processList(List<String> list) {
-		List<OriginalProcessedPair> outputList = new ArrayList<>(20000);
-		for (String string : list) {
-			outputList.add(new OriginalProcessedPair(string, string));
-		}
-		return outputList;
 	}
 
 }
