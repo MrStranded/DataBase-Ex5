@@ -4,6 +4,11 @@ import processing.OptimalCorrecter;
 import similarity_measures.*;
 import processing.NameCorrecter;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,6 +65,25 @@ public class Main {
 
 			System.out.println("--- Calculating the TPR.");
 			System.out.println("True Positive Rate = " + EfficiencyCalculator.calculateTruePositives(correctedNames, generatedNames));
+
+			//Writing corrected names to file. If the file already exists: delete it before writing to it.
+			String filename = similarityMeasure.getClass() + "_Output.txt";
+			filename = filename.replace("class similarity_measures.","");
+			try {
+				Files.deleteIfExists(Paths.get(filename));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+			System.out.println("Writing corrected names to file.");
+			try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
+				for (Name name : correctedNames) {
+					writer.write(name.getFirstName() + " " + name.getLastName() + "\n");
+				}
+				//writer.close(); //IntelliJ claims that closing the writer is not necessary.
+			} catch(IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
