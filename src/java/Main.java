@@ -1,5 +1,6 @@
 import data.Name;
 import processing.EfficiencyCalculator;
+import processing.OptimalCorrecter;
 import similarity_measures.*;
 import processing.NameCorrecter;
 
@@ -23,29 +24,39 @@ public class Main {
 
 		List<Name> generatedNames = NameLoader.loadNames("res/cleaningDataset/generatedNames.txt");
 
-		// initializing the correction handler and the similarity measures
-		System.out.println("Initializing correcter...");
-		NameCorrecter nameCorrecter = new NameCorrecter(femaleFirstNames, maleFirstNames, lastNames);
-
 		// correcting the wrong name list
 		for (ISimilarityMeasure similarityMeasure : similarityMeasures) {
+			// initializing the correction handler and the similarity measures
+			System.out.println("Initializing correcter...");
+			NameCorrecter nameCorrecter = new NameCorrecter(femaleFirstNames, maleFirstNames, lastNames);
+
 			System.out.println(""); // an empty line to improve readability
 			System.out.println("--------- Applying " + similarityMeasure.getClass() + " similarity measure...");
 
 			long startTime = System.currentTimeMillis();
-			List<Name> correctedNames = nameCorrecter.correctNames(wrongNames, similarityMeasure);
+
+			List<Name> correctedNames = new ArrayList<>(0);
+
+			if (similarityMeasure.getClass() != OptimalDistance.class) { // for any normal similarity measure
+				correctedNames = nameCorrecter.correctNames(wrongNames, similarityMeasure);
+			} else { // our personal optimized similarity measure
+				OptimalCorrecter optimalCorrecter = new OptimalCorrecter(femaleFirstNames, maleFirstNames, lastNames);
+
+				correctedNames = optimalCorrecter.correctNames(wrongNames, similarityMeasure);
+			}
 
 			System.out.println("It took " + (System.currentTimeMillis() - startTime) + " milliseconds.");
 
 			System.out.println("--- Sample names:");
-			int i=0;
+			int i = 0;
 			for (Name name : correctedNames) {
 				System.out.println(name);
 				i++;
-				if (i>=3) {
+				if (i >= 3) {
 					break;
 				}
 			}
+
 
 			System.out.println("--- Calculating the TPR.");
 			System.out.println("True Positive Rate = " + EfficiencyCalculator.calculateTruePositives(correctedNames, generatedNames));
@@ -60,6 +71,7 @@ public class Main {
 			similarityMeasures.add(new SoundexDistance());
 			similarityMeasures.add(new LevenshteinDistance());
 			similarityMeasures.add(new JaccardDistance());
+			similarityMeasures.add(new OptimalDistance());
 
 		} else {
 			for (String argument : args) {
@@ -88,7 +100,7 @@ public class Main {
 					similarityMeasures.add(new JaccardDistance());
 
 				} else if ("optimal".equals(argument)) {
-
+					similarityMeasures.add(new OptimalDistance());
 
 				} else {
 					System.out.println("The argument '" + argument + "' is invalid!");
