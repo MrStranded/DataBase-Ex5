@@ -14,15 +14,15 @@ import java.util.List;
 public class OptimalCorrecter extends Correcter {
 
 	private List<String> femaleFirstNames, maleFirstNames, lastNames;
-	private List<ISimilarityMeasure> similarityMeasures = new ArrayList<>(2);
+	private ISimilarityMeasure similarityMeasure, decisionMeasure;
 
 	public OptimalCorrecter(List<String> femaleFirstNames, List<String> maleFirstNames, List<String> lastNames) {
 		this.femaleFirstNames = femaleFirstNames;
 		this.maleFirstNames = maleFirstNames;
 		this.lastNames = lastNames;
 
-		similarityMeasures.add(new LevenshteinDistance());
-		similarityMeasures.add(new JaccardDistance());
+		similarityMeasure = new LevenshteinDistance();
+		decisionMeasure = new JaccardDistance();
 	}
 
 	public List<Name> correctNames(List<Name> wrongNames, ISimilarityMeasure notUsed) {
@@ -44,53 +44,25 @@ public class OptimalCorrecter extends Correcter {
 			// we create a new name that will be added to the correctedNames list
 			Name newName = new Name(name.getFirstName(), name.getLastName());
 
-			List<String> bestFirstNames = new ArrayList<>(similarityMeasures.size());
-			List<String> bestLastNames = new ArrayList<>(similarityMeasures.size());
+			// preprocessing the string (this is useful for the soundex algorithm)
+			String firstNameProcessed = similarityMeasure.preProcess(name.getFirstName());
+			String lastNameProcessed = similarityMeasure.preProcess(name.getLastName());
 
-			for (ISimilarityMeasure similarityMeasure : similarityMeasures) {
-				// preprocessing the string (this is useful for the soundex algorithm)
-				String firstNameProcessed = similarityMeasure.preProcess(name.getFirstName());
-				String lastNameProcessed = similarityMeasure.preProcess(name.getLastName());
+			// we calculate the best fit for the first name for both genders
+			List<String> bestFemaleFirstNames = closestStrings(firstNameProcessed, femaleFirstNamesProcessed, similarityMeasure);
+			List<String> bestMaleFirstNames = closestStrings(firstNameProcessed, maleFirstNamesProcessed, similarityMeasure);
 
-				// we calculate the best fit for the first name for both genders
-				NameDistancePair femaleFirstName = closestString(firstNameProcessed, femaleFirstNamesProcessed, similarityMeasure);
-				NameDistancePair maleFirstName = closestString(firstNameProcessed, maleFirstNamesProcessed, similarityMeasure);
+			// combining the two first name lists
+			bestFemaleFirstNames.addAll(bestMaleFirstNames);
+			List<String> bestFirstNames = bestFemaleFirstNames;
 
-				// now we find out which of the names (female, male) fits better and put it into our newName
-				if (femaleFirstName.getDistance() < maleFirstName.getDistance()) {
-					bestFirstNames.add(femaleFirstName.getName());
-				} else {
-					bestFirstNames.add(maleFirstName.getName());
-				}
+			// now we find out which of the first names fits best in regard to our decision measure and put it into our newName
+			newName.setFirstName(findBestDecisionFit(name.getFirstName(), bestFirstNames));
 
-				// we also find the best fit for the lastname and put it into the newName
-				bestLastNames.add(closestString(lastNameProcessed, lastNamesProcessed, similarityMeasure).getName());
-			}
+			// we also find the best fit for the lastname and put it into the newName
+			List<String> bestLastNames = closestStrings(lastNameProcessed, lastNamesProcessed, similarityMeasure);
 
-			// from the list of best first and last names, we chose the one that best fits with our decision measure
-			String testName = decisionMeasure.preProcess(name.getFirstName());
-			String bestName = testName;
-			int leastDistance = -1;
-			for (String firstName : bestFirstNames) {
-				int distance = decisionMeasure.distance(testName, decisionMeasure.preProcess(firstName));
-				if (leastDistance == -1 || distance < leastDistance) {
-					bestName = firstName;
-					leastDistance = distance;
-				}
-			}
-			newName.setFirstName(bestName);
-
-			testName = decisionMeasure.preProcess(name.getLastName());
-			bestName = testName;
-			leastDistance = -1;
-			for (String lastName : bestLastNames) {
-				int distance = decisionMeasure.distance(testName, decisionMeasure.preProcess(lastName));
-				if (leastDistance == -1 || distance < leastDistance) {
-					bestName = lastName;
-					leastDistance = distance;
-				}
-			}
-			newName.setLastName(bestName);
+			newName.setLastName(findBestDecisionFit(name.getLastName(), bestLastNames));
 
 			// finally, we add the newName to the correctedNames list (as you can obviously see in the line of code below)
 			correctedNames.add(newName);
@@ -106,6 +78,42 @@ public class OptimalCorrecter extends Correcter {
 		System.out.println("");
 
 		return wrongNames;
+	}
+
+	private String findBestDecisionFit(String searchTerm, List<String> names) {
+		int leastDistance = -1;
+		String bestName = "";
+		for (String name : names) {
+			int distance = decisionMeasure.distance(searchTerm, name);
+			if (leastDistance == -1 || distance < leastDistance) {
+				leastDistance = distance;
+				bestName = name;
+			}
+		}
+		return bestName;
+	}
+
+	private List<String> closestStrings(String wrongString, List<OriginalProcessedPair> correctList, ISimilarityMeasure similarityMeasure) {
+		int leastDistance = -1;
+		List<String> bestFits = new ArrayList<>(8);
+
+		for (OriginalProcessedPair correct: correctList) {
+			int distance = similarityMeasure.distance(wrongString, correct.getProcessed());
+
+			if (leastDistance == -1) {
+				leastDistance = distance;
+			}
+
+			if (distance < leastDistance) {
+				leastDistance = distance;
+				bestFits.clear();
+				bestFits.add(correct.getOriginal());
+			} else if (distance == leastDistance) {
+				bestFits.add(correct.getOriginal());
+			}
+		}
+
+		return bestFits;
 	}
 
 	private List<OriginalProcessedPair> processList(List<String> list) {
