@@ -77,7 +77,7 @@ public class OptimalCorrecter extends Correcter {
 		// going to next line after progress bar
 		System.out.println("");
 
-		return wrongNames;
+		return correctedNames;
 	}
 
 	private String findBestDecisionFit(String searchTerm, List<String> names) {
