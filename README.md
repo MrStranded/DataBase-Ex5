@@ -4,6 +4,21 @@ Our solution for the second part of the exercise 5 of the databases course.
 ___________________________________________________________________________________
 ## How-To-Use:
 
+Run the DB_Ex05_part2_artifact.jar file as follows:
+`java -jar DB_Ex05_part2_artifact.jar`
+
+You may use the following arguments:
+`help` to get a description of how-to-use the program
+`hamming` to run the Hamming comparison
+`soundex` to run the Soundex comparison
+`levenshtein` to run the Levenshtein comparison
+`jaccard` to run the Jaccard comparison
+`optimal` to run our own combination of comparators, which achieves a higher true positive rate
+Or no arguments at all, to run all the similarity measures.
+
+You may also combine arguments, to run a select subset of comparators in the order you want.
+Example:
+`java -jar DB_Ex05_part2_artifact.jar levenshtein optimal help soundex`
 
 ___________________________________________________________________________________
 ## (Cleaned) Console Output:
