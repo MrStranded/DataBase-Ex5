@@ -26,3 +26,9 @@ hs_err_pid*
 \.idea/
 
 OptimalDistance_Output\.txt
+
+HammingDistance_Output\.txt
+
+SoundexDistance_Output\.txt
+
+gradle/
