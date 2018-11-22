@@ -7,6 +7,7 @@ import java.util.List;
 public class JaccardDistance implements ISimilarityMeasure{
 
 	private static HashMap<String, List<String>> nameList = new HashMap<>();
+
 	@Override
 	public int distance(String one, String two) {
 		/*

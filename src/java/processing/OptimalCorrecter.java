@@ -106,7 +106,7 @@ public class OptimalCorrecter extends Correcter {
 		// going to next line after progress bar
 		System.out.println("");
 
-		return correctedNames;
+		return removeDuplicates(correctedNames);
 	}
 
 	// _________________________________________________________________________________________________________________
