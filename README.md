@@ -31,7 +31,7 @@ Example:
 ___________________________________________________________________________________
 ## (Cleaned) Console Output:
 
---------- Applying HammingDistance
+### --------- Applying HammingDistance
 
 Removed 3413 duplicates. 23718 remain.
 
@@ -45,7 +45,7 @@ ERIC KEITH,
 STUART SEVERANCE,
 TERI LE
 
---------- Applying SoundexDistance
+### --------- Applying SoundexDistance
 
 Removed 1100 duplicates. 26031 remain.
 
@@ -59,7 +59,7 @@ KRISTOPHER KEITH,
 STUART SPRINGER,
 TRUDY LEATHERMAN
 
---------- Applying LevenshteinDistance
+### --------- Applying LevenshteinDistance
 
 Removed 1357 duplicates. 25774 remain.
 
@@ -73,7 +73,7 @@ KRISTIN KEITH,
 STUART SEVERANCE,
 TERI LEATHERWOOD
 
---------- Applying JaccardDistance
+### --------- Applying JaccardDistance
 
 Removed 1229 duplicates. 25902 remain.
 
@@ -87,7 +87,7 @@ KRISTIN KEITH,
 STUART SEVERANCE,
 TERI LEATHERWOOD
 
---------- Applying OptimalDistance
+### --------- Applying OptimalDistance
 
 Removed 1408 duplicates. 25723 remain.
 
