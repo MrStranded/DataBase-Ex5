@@ -4,10 +4,11 @@ import data.Name;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Queue;
 
 public class EfficiencyCalculator {
 
-	public static double calculateTruePositives(List<Name> cleanedNames, List<Name> correctNames) {
+	public static double calculateTruePositives(Queue<Name> cleanedNames, List<Name> correctNames) {
 		double numberOfCorrectNames = 0;
 		HashMap<String, Name> hashMap = new HashMap<>();
 

@@ -18,16 +18,14 @@ public class JaccardDistance implements ISimilarityMeasure{
 		 * - If a pair is not stored yet, its TriGrams will be calculated and the pair is then added to the map.
 		 */
 		List<String> oneList, twoList;
-		if (nameList.containsKey(one)) {
-			oneList = nameList.get(one);
-		} else {
+		oneList = nameList.get(one);
+		twoList = nameList.get(two);
+		if (oneList == null) {
 			oneList = new ArrayList<>();
 			generateTriGrams(one, oneList);
 			nameList.put(one, oneList);
 		}
-		if (nameList.containsKey(two)) {
-			twoList = nameList.get(two);
-		} else {
+		if (twoList == null) {
 			twoList = new ArrayList<>();
 			generateTriGrams(two, twoList);
 			nameList.put(two, twoList);
@@ -67,6 +65,9 @@ public class JaccardDistance implements ISimilarityMeasure{
 
 	@Override
 	public String preProcess(String name) {
+		List<String> trigramList = new ArrayList<>();
+		generateTriGrams(name, trigramList);
+		nameList.put(name, trigramList);
 		return name;
 	}
 	private void generateTriGrams(String word, List<String> wordList) {

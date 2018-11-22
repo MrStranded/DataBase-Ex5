@@ -7,6 +7,8 @@ import similarity_measures.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * This correcter is used to combine multiple similarity measures to achieve a better True Positive Rate.
@@ -46,6 +48,22 @@ public class OptimalCorrecter extends Correcter {
 	}
 
 	// _________________________________________________________________________________________________________________
+
+	@Override
+	public List<OriginalProcessedPair> getFemaleFirstNamesProcessed() {
+		return null;
+	}
+
+	@Override
+	public List<OriginalProcessedPair> getMaleFirstNamesProcessed() {
+		return null;
+	}
+
+	@Override
+	public List<OriginalProcessedPair> getLastNamesProcessed() {
+		return null;
+	}
+
 	/**
 	 * This method calculates the estimated correct names for a given list of wrong names.
 	 * The similartiy measure in the argument is not used, as we define our own in the constructor.
@@ -53,8 +71,8 @@ public class OptimalCorrecter extends Correcter {
 	 * @param notUsed
 	 * @return list with corrected names
 	 */
-	public List<Name> correctNames(List<Name> wrongNames, ISimilarityMeasure notUsed) {
-		List<Name> correctedNames = new ArrayList<>(1000);
+	public Queue<Name> correctNames(List<Name> wrongNames, ISimilarityMeasure notUsed) {
+		Queue<Name> correctedNames = new ConcurrentLinkedQueue<Name>();
 		int length = wrongNames.size();
 		int partLength = length / 100;
 		int progress = 0;

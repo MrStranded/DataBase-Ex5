@@ -11,6 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 
 public class Main {
 
@@ -40,7 +41,7 @@ public class Main {
 
 			long startTime = System.currentTimeMillis();
 
-			List<Name> correctedNames;
+			Queue<Name> correctedNames;
 
 			if (similarityMeasure.getClass() != OptimalDistance.class) { // for any normal similarity measure
 				correctedNames = nameCorrecter.correctNames(wrongNames, similarityMeasure);
