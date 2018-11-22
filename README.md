@@ -8,10 +8,10 @@ ________________________________________________________________________________
 ___________________________________________________________________________________
 ## (Cleaned) Console Output:
 
---------- Applying HammingDistance
-Removed 3413 duplicates. 23718 remain.
-It took 8466 milliseconds.
-True Positive Rate = 0.13760340732246704
+--------- Applying HammingDistance\n
+Removed 3413 duplicates. 23718 remain.\n
+It took 8466 milliseconds.\n
+True Positive Rate = 0.13760340732246704\n
 
 --- Sample names:
 ERIC KEITH
